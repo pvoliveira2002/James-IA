@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+.env.*
+data/*.db
+data/*.log
+data/settings.json
+data/browser_profile/
+data/browser_diagnostics/
+backups/

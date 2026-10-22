@@ -1,0 +1,1 @@
+"""Ferramentas locais e controladas."""

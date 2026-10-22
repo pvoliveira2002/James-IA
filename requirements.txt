@@ -1,0 +1,5 @@
+# Interface, SQLite e Ollama usam a biblioteca padrão do Python 3.11 ou superior.
+# Necessário somente para o provedor de nuvem opcional:
+openai>=2.0.0
+# Automacao web supervisionada (usa o Google Chrome instalado).
+playwright>=1.50,<2
