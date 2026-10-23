@@ -70,6 +70,10 @@ A Central de Comando foi reorganizada com o chat em destaque, balões separados 
 
 O projeto foi preparado para versionamento no Git com código, testes, documentação e capturas da interface. Bancos SQLite, configurações locais, logs, ambientes virtuais, backups e o perfil privado do navegador foram excluídos pelo `.gitignore`, evitando publicar sessões, cookies ou dados pessoais da máquina.
 
+### 23/10/2026 — Publicação no GitHub
+
+O projeto foi publicado no repositório `pvoliveira2002/James-IA`, usando a branch principal `main`. O repositório local ficou vinculado ao remoto `origin`, permitindo que as próximas atualizações sejam enviadas sem uma nova configuração.
+
 ## Instalação no Windows
 
 1. Instale o Python 3.11 ou mais recente pelo site oficial e marque **Add Python to PATH**.
