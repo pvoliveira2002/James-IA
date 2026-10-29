@@ -53,6 +53,7 @@ class WebAutomationTests(unittest.TestCase):
         catalog = SiteCatalog(self.db)
         self.assertEqual(catalog.find("zap").name, "WhatsApp Web")
         self.assertEqual(catalog.find("youtube").url, "https://www.youtube.com/")
+        self.assertEqual(catalog.find("chat gpt").url, "https://chatgpt.com/")
 
     def test_open_site_creates_verified_steps(self):
         reply = self.agent.handle("abra o YouTube")

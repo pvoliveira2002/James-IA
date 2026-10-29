@@ -74,6 +74,40 @@ O projeto foi preparado para versionamento no Git com código, testes, documenta
 
 O projeto foi publicado no repositório `pvoliveira2002/James-IA`, usando a branch principal `main`. O repositório local ficou vinculado ao remoto `origin`, permitindo que as próximas atualizações sejam enviadas sem uma nova configuração.
 
+### 24/10/2026 — Módulo de voz local
+
+O botão de microfone da Central de Comando passou a iniciar e parar uma captura sob demanda com Vosk e `sounddevice`, sem escuta contínua nem armazenamento de áudio. A transcrição usa o mesmo fluxo do chat e a leitura opcional das respostas utiliza SAPI5 por meio do `pyttsx3`. Captura, reconhecimento e síntese trabalham fora da thread gráfica, com estados Ouvindo, Processando, Pronto e Erro. As dependências e o modelo são opcionais e não são baixados automaticamente. Backup: `backups/2026-10-24_pre_voice_module`.
+
+### 24/10/2026 — Instalação local da voz
+
+Foram instalados Vosk 0.3.45, `sounddevice` 0.5.6 e `pyttsx3` 2.99. O modelo brasileiro `vosk-model-small-pt-0.3` foi baixado da fonte oficial, extraído em `data/models` e configurado com a entrada de voz ativa. O James também passou a localizar automaticamente um microfone quando o Windows não define uma entrada padrão e a negociar a frequência suportada pelo dispositivo.
+
+### 24/10/2026 — Agendador inteligente
+
+O James ganhou agenda visual e comandos naturais para criar, listar, editar, concluir, adiar e excluir lembretes. Datas relativas, amanhã, horários e repetições diárias ou semanais são interpretados localmente pelo mesmo fluxo usado no texto e na voz. Um serviço leve verifica vencimentos em segundo plano, evita notificações duplicadas e usa notificações nativas do Windows com botões para adiar ou concluir. Os lembretes existentes são migrados e preservados no SQLite. Backup: `backups/2026-10-24_pre_smart_scheduler`.
+
+Validação: a notificação nativa foi solicitada com sucesso no Windows e todos os 84 testes automatizados foram aprovados.
+
+### 26/10/2026 — Correção de abertura do ChatGPT e confirmações
+
+O James agora diferencia ChatGPT Desktop, site e conversa antes de executar. As formas “ChatGPT” e “Chat GPT” usam o mesmo destino: o catálogo do Windows é atualizado, um aplicativo nativo encontrado exige confirmação e, quando ele não existe, o James oferece `https://chatgpt.com/` no navegador padrão. O matching aproximado passou a rejeitar sugestões sem relação, como Character Map, e respostas isoladas como “abrir”, “sim” ou “confirmar” só atuam quando existe um destino válido pendente. As mensagens distinguem solicitação enviada, processo verificado e falha. O computador possui apenas um PWA do ChatGPT no Chrome, não o aplicativo Desktop nativo; por isso o comportamento local correto é oferecer o site. Todos os 89 testes foram aprovados. Backup: `backups/2026-10-26_pre_chatgpt_routing`.
+
+### 26/10/2026 — Interface JAMES/NEXUS 3.0
+
+A Central de Comando recebeu a identidade NEXUS 3.0 em azul-preto, com painéis holográficos, atalhos funcionais, chat persistente e campo de texto permanente. O núcleo 2.5D usa apenas Canvas reutilizável, partículas e órbitas leves: ciano indica pronto, azul processamento, verde somente conclusão verificada, vermelho erro real e âmbar confirmação pendente. Solicitações de abertura que não permitem verificar o carregamento permanecem ciano e nunca simulam sucesso. A animação trabalha perto de 18 FPS quando ativa e reduz a frequência em repouso ou sem visibilidade. Os layouts 1366×768 e 1920×1080 foram validados, a captura local está em `data/nexus_3_1366x768.png` e todos os 92 testes passaram. Backup: `backups/2026-10-26_pre_nexus_3`.
+
+### 26/10/2026 — Inteligência conversacional evoluída
+
+O James passou a manter melhor a continuidade entre perguntas, resolver referências aos turnos recentes e reconhecer mudanças de assunto sem misturar temas. As respostas de Ollama e OpenAI agora podem aparecer progressivamente na interface sem bloquear o Tkinter nem duplicar o histórico SQLite; o contexto recente continua temporário e somente pedidos explícitos criam memória persistente. O seletor lista modelos Ollama instalados e oferece `qwen3:1.7b` sem substituir automaticamente o `qwen2.5:0.5b` configurado. O `qwen3:1.7b` foi instalado e respondeu localmente por streaming em 5,81 segundos neste computador, enquanto a OpenAI permaneceu sem chamada paga. Todos os 102 testes automatizados passaram. Backup: `backups/2026-10-26_pre_conversation_2`.
+
+### 26/10/2026 — NEXUS 3.1: memória contextual e ações confiáveis
+
+O NEXUS 3.1 reutiliza os módulos existentes e acrescenta recuperação lexical leve das memórias autorizadas, ensinamentos pelo chat, correção por número, proteção contra duplicação e exclusão confirmada. Respostas de ação agora carregam estados explícitos — solicitada, executada, verificada, confirmação ou erro — e o núcleo mantém aberturas não verificadas em ciano, sem declarar sucesso. O chat ganhou etiquetas e botões contextuais funcionais para continuar, escolher, abrir, excluir ou cancelar, preservando permissões e confirmações. Nenhum modelo foi trocado ou baixado automaticamente, nenhuma dependência pesada foi adicionada e todos os 109 testes passaram. Backup: `backups/2026-10-26_pre_nexus_3_1`.
+
+### 26/10/2026 — Correção das perguntas sobre capacidades
+
+Perguntas como “Quais serviços eu posso pedir pra você, James?”, “O que você sabe fazer?” e “Como pode me ajudar?” agora são resolvidas localmente, sem depender do modelo de IA. A resposta é gerada a partir das ferramentas, permissões e provedor realmente disponíveis, separando recursos ativos, desativados e ainda não implementados. O histórico ganhou escopo por conversa, migração preservando as 124 mensagens existentes, ordem cronológica e remoção de duplicações consecutivas no contexto. O Ollama recebeu instruções mais diretas contra saudações vazias e repetição, e os diagnósticos registram intenção, provedor e tipo de falha sem gravar o texto pessoal. Todos os 117 testes passaram. Backup: `backups/2026-10-26_pre_capabilities_fix`.
+
 ## Instalação no Windows
 
 1. Instale o Python 3.11 ou mais recente pelo site oficial e marque **Add Python to PATH**.
@@ -103,6 +137,7 @@ python -m unittest discover -v
 ## Funcionalidades implementadas
 
 - Interface Tkinter responsiva, tema grafite, verde e azul.
+- Central de Comando JAMES/NEXUS 3.0 com núcleo holográfico reativo e animação leve.
 - Chat com histórico persistente em SQLite e processamento em segundo plano.
 - Modo básico offline com comandos determinísticos.
 - Abertura autorizada de Calculadora, Bloco de Notas e navegador.
@@ -117,13 +152,45 @@ python -m unittest discover -v
 - Conversação natural com contexto recente via Ollama ou OpenAI Responses API.
 - Provedor OpenAI opcional, modelo configurável e chave lida do ambiente.
 - Ferramentas estruturadas solicitadas pela IA, sempre sujeitas a confirmação.
-- Estruturas SQLite preparadas para lembretes, loja e pedidos futuros.
+- Entrada de voz local sob demanda com Vosk e respostas faladas opcionais pelo SAPI5.
+- Agenda local com lembretes únicos ou recorrentes, filtros visuais e notificações do Windows.
+- Estruturas SQLite preparadas para loja e pedidos futuros.
 
 Digite `ajuda` no chat para consultar os comandos.
+
+## Voz opcional
+
+1. Instale as dependências sem alterar o funcionamento do modo de texto:
+
+```powershell
+python -m pip install -r requirements-voice.txt
+```
+
+2. Baixe manualmente o modelo leve brasileiro `vosk-model-small-pt-0.3` na [página oficial de modelos do Vosk](https://alphacephei.com/vosk/models) e extraia-o em uma pasta local. O James não baixa modelos automaticamente.
+3. Abra **Configurações**, marque **Ativar entrada por microfone**, selecione a pasta extraída do modelo e salve. Marque **Falar respostas do James** se também desejar a saída por voz.
+4. Pressione o botão 🎙 para começar, fale e pressione novamente para parar e processar. A tecla `Esc` cancela uma captura em andamento.
+
+O áudio existe apenas na memória durante a captura e não é salvo. Sem as dependências ou sem um modelo configurado, o chat de texto continua funcionando normalmente.
+
+## Agenda e lembretes
+
+A seção **Agenda** oferece os filtros Hoje, Próximos, Recorrentes e Concluídos. Exemplos aceitos no chat e pelo microfone:
+
+- `Me lembre de pagar a conta amanhã às 14h.`
+- `Crie um lembrete para conferir a prensa daqui a 30 minutos.`
+- `Agende um lembrete para tomar remédio todos os dias às 8h.`
+- `Mostre meus lembretes.`
+- `Adie o lembrete 2 por 30 minutos.`
+- `Conclua o lembrete 2.`
+- `Exclua o lembrete 2.`
+
+Exclusões sempre pedem confirmação. Datas sem dia ou horário suficiente geram uma pergunta de esclarecimento. O pacote leve `windows-toasts`, instalado por `requirements.txt`, fornece as notificações nativas.
 
 ## Ollama opcional
 
 Instale o Ollama separadamente, obtenha um modelo pequeno (`ollama pull qwen2.5:0.5b`), inicie o serviço e selecione `ollama` na aba **CONFIG**. O James informa claramente se o serviço não estiver disponível. Nenhum conteúdo é enviado à nuvem pelo MVP.
+
+O modelo `qwen3:1.7b` também pode ser instalado com `ollama pull qwen3:1.7b`. Depois, use **Atualizar modelos Ollama** e selecione-o manualmente nas Configurações; instalar ou testar um modelo nunca altera sozinho o modelo ativo. Para preservar desempenho no i3 com 8 GB, o contexto local é limitado e as respostas usam streaming em uma thread de trabalho.
 
 ## Segurança
 
@@ -131,8 +198,10 @@ As ferramentas possuem permissões em `data/settings.json`. Pesquisa e organiza�
 
 ## Limitações conhecidas
 
-- Voz, impressão, pedidos e gestão completa da loja pertencem às próximas fases.
-- Lembretes têm estrutura de banco preparada, mas o agendador visual ainda não integra este MVP.
+- Impressão, pedidos e gestão completa da loja pertencem às próximas fases.
+- A precisão da voz depende do microfone e do modelo Vosk escolhido; o modelo pequeno prioriza baixo consumo de memória.
+- O agendador verifica lembretes enquanto o James está aberto; lembretes vencidos durante o fechamento são recuperados na próxima inicialização.
+- Os botões Adiar e Concluir das notificações precisam que o James continue aberto para processar a ação.
 - O Ollama exige instalação externa e pode ser lento neste hardware; o modo básico é o recomendado.
 - A abertura dos aplicativos e o comportamento visual precisam de validação manual no Windows do usuário.
 - A integração OpenAI não está habilitada nesta fase, evitando configuração acidental com custo.

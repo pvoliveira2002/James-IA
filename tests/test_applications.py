@@ -11,6 +11,7 @@ from tools.application_discovery import (
 )
 from tools.application_launcher import ApplicationLauncherService
 from tools.application_matcher import ApplicationMatcher
+from tools.default_browser import DefaultBrowserResult
 
 
 class ApplicationTests(unittest.TestCase):
@@ -73,6 +74,63 @@ class ApplicationTests(unittest.TestCase):
     def test_missing_whatsapp_does_not_offer_unrelated_apps(self):
         self.assertEqual(ApplicationMatcher(self.db).match("WhatsApp"), [])
         self.assertEqual(ApplicationMatcher(self.db).match("aplicativo do WhatsApp"), [])
+
+    def test_chatgpt_aliases_prefer_related_application_and_reject_character_map(self):
+        character_id = make_app_id("portable", str(self.exe), "Character Map")
+        self.db.add_manual_application({"id": character_id, "display_name": "Character Map",
+            "normalized_name": normalize_app_name("Character Map"), "launch_target": str(self.exe),
+            "app_user_model_id": None, "app_type": "portable", "discovery_source": "manual"})
+        self.assertEqual(ApplicationMatcher(self.db).match("chat gpt"), [])
+        chatgpt_id = make_app_id("portable", str(self.exe), "ChatGPT Desktop")
+        self.db.add_manual_application({"id": chatgpt_id, "display_name": "ChatGPT Desktop",
+            "normalized_name": normalize_app_name("ChatGPT Desktop"), "launch_target": str(self.exe),
+            "app_user_model_id": None, "app_type": "portable", "discovery_source": "manual"})
+        for spelling in ("ChatGPT", "chat gpt", "ChatGPT Desktop"):
+            self.assertEqual(ApplicationMatcher(self.db).match(spelling)[0].app_id, chatgpt_id)
+
+    def test_chatgpt_desktop_and_contextual_confirmation(self):
+        chatgpt_id = make_app_id("portable", str(self.exe), "ChatGPT")
+        self.db.add_manual_application({"id": chatgpt_id, "display_name": "ChatGPT",
+            "normalized_name": "chatgpt", "launch_target": str(self.exe), "app_user_model_id": None,
+            "app_type": "portable", "discovery_source": "manual"})
+        assistant = Assistant(self.db, self.settings)
+        requested = assistant.process("Abra o Chat GPT")
+        self.assertEqual((requested.action, requested.payload), ("confirm_application", chatgpt_id))
+        self.assertEqual(requested.status, "confirmation")
+        confirmed = assistant.process("confirmar")
+        self.assertEqual((confirmed.action, confirmed.payload), ("confirm_application", chatgpt_id))
+        self.assertEqual(confirmed.status, "confirmed")
+
+    def test_chatgpt_web_fallback_uses_default_browser_after_confirmation(self):
+        assistant = Assistant(self.db, self.settings)
+        opener = Mock(return_value=DefaultBrowserResult(
+            True, "https://chatgpt.com/", "Navegador padrão",
+            "A abertura foi solicitada; o carregamento não pôde ser verificado.",
+        ))
+        assistant.orchestrator.default_browser.open = opener
+        checking = assistant.process("James, abra o ChatGPT")
+        self.assertEqual(checking.action, "refresh_apps")
+        offered = assistant.request_chatgpt_after_refresh()
+        self.assertEqual(offered.action, "confirm_website")
+        opener.assert_not_called()
+        opened = assistant.process("sim")
+        opener.assert_called_once_with("https://chatgpt.com/", "abra o ChatGPT")
+        self.assertIn("solicitada", opened.text)
+
+    def test_isolated_open_or_confirmation_never_executes(self):
+        assistant = Assistant(self.db, self.settings)
+        for text in ("Abrir", "sim", "confirmar"):
+            response = assistant.process(text)
+            self.assertIsNone(response.action)
+            self.assertIn("Não há", response.text)
+
+    def test_word_exact_name_wins_over_approximate_matches(self):
+        word_id = make_app_id("portable", str(self.exe), "Microsoft Word")
+        self.db.add_manual_application({"id": word_id, "display_name": "Microsoft Word",
+            "normalized_name": normalize_app_name("Microsoft Word"), "launch_target": str(self.exe),
+            "app_user_model_id": None, "app_type": "portable", "discovery_source": "manual"})
+        response = Assistant(self.db, self.settings).process("Abra o Word")
+        self.assertEqual((response.action, response.payload), ("confirm_application", word_id))
 
     def test_launcher_requires_permission(self):
         popen = Mock(); success, message = ApplicationLauncherService(self.db, popen).launch(self.app_id)

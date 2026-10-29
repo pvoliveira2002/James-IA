@@ -49,6 +49,7 @@ class SiteCatalog:
         {"name": "WhatsApp Web", "url": "https://web.whatsapp.com/", "aliases": ["whatsapp", "zap", "whatsapp web"], "favorite": True},
         {"name": "Bling", "url": "https://www.bling.com.br/", "aliases": ["bling", "erp"]},
         {"name": "Google Maps", "url": "https://maps.google.com/", "aliases": ["google maps", "maps", "mapas"]},
+        {"name": "ChatGPT", "url": "https://chatgpt.com/", "aliases": ["chatgpt", "chat gpt", "openai chatgpt"]},
         {"name": "Epson", "url": "https://epson.com.br/", "aliases": ["epson", "site da epson"]},
     )
 

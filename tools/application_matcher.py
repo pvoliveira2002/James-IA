@@ -15,6 +15,14 @@ INTENT_HINTS = {
     "navegar internet": ("chrome", "firefox", "edge"),
 }
 
+SERVICE_ALIASES = {
+    "chat gpt": "chatgpt",
+    "openai chatgpt": "chatgpt",
+    "chatgpt desktop": "chatgpt",
+    "microsoft word": "word",
+    "ms word": "word",
+}
+
 
 @dataclass(frozen=True)
 class ApplicationMatch:
@@ -29,6 +37,7 @@ class ApplicationMatcher:
     def match(self, query: str, limit: int = 5, threshold: float = .55) -> list[ApplicationMatch]:
         normalized = normalize_app_name(query)
         normalized = re.sub(r"^(?:o |a )?(?:aplicativo|programa|app)(?: do| da| de)?\s+", "", normalized).strip()
+        normalized = SERVICE_ALIASES.get(normalized, normalized)
         aliases = {row["normalized_alias"]: row["application_id"] for row in self.db.application_aliases()}
         if normalized in aliases:
             app = self.db.get_application(aliases[normalized])
@@ -47,8 +56,10 @@ class ApplicationMatcher:
             name = str(app["normalized_name"]); name_tokens = set(name.split())
             sequence = SequenceMatcher(None, normalized, name).ratio()
             overlap = len(query_tokens & name_tokens) / max(1, len(name_tokens))
-            contains = .92 if name in normalized or normalized in name else 0
+            contains = .92 if len(normalized) >= 4 and (name in normalized or normalized in name) else 0
             hinted = .88 if any(hint in name for hint in hints) else 0
             score = max(sequence, overlap, contains, hinted)
-            if score >= threshold: results.append(ApplicationMatch(app["id"], app["display_name"], score))
+            related = overlap > 0 or contains > 0 or hinted > 0 or sequence >= .72
+            if score >= threshold and related:
+                results.append(ApplicationMatch(app["id"], app["display_name"], score))
         return sorted(results, key=lambda item: (-item.score, item.display_name.casefold()))[:limit]

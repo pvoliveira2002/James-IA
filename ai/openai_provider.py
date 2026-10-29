@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+from collections.abc import Callable
 from typing import Any
 
 from ai.base import ProviderResponse, ToolCall
@@ -45,6 +46,36 @@ class OpenAIProvider:
             )
         except Exception as exc:
             raise RuntimeError(f"Falha ao consultar a OpenAI: {exc}") from exc
+        return self._result(response)
+
+    def chat_stream(self, messages: list[dict[str, str]], instructions: str,
+                    on_delta: Callable[[str], None]) -> ProviderResponse:
+        ready, reason = self.status()
+        if not ready: raise RuntimeError(f"OpenAI indisponível: {reason}.")
+        try:
+            from openai import OpenAI
+            client = OpenAI(timeout=self.timeout)
+            stream = client.responses.create(
+                model=self.model, instructions=instructions, input=messages,
+                tools=TOOLS, tool_choice="auto", store=False, max_output_tokens=700, stream=True,
+            )
+            parts: list[str] = []; completed = None
+            for event in stream:
+                event_type = getattr(event, "type", "")
+                if event_type == "response.output_text.delta":
+                    delta = str(getattr(event, "delta", ""))
+                    if delta: parts.append(delta); on_delta(delta)
+                elif event_type == "response.completed":
+                    completed = getattr(event, "response", None)
+                elif event_type == "error":
+                    raise RuntimeError(str(getattr(event, "message", "erro desconhecido")))
+        except Exception as exc:
+            raise RuntimeError(f"Falha ao consultar a OpenAI: {exc}") from exc
+        result = self._result(completed) if completed is not None else ProviderResponse("".join(parts).strip())
+        return result if result.text or result.tool_calls else ProviderResponse("".join(parts).strip())
+
+    @staticmethod
+    def _result(response: Any) -> ProviderResponse:
         calls: list[ToolCall] = []
         for item in getattr(response, "output", ()):
             if getattr(item, "type", None) == "function_call":

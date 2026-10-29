@@ -10,4 +10,5 @@ data/*.log
 data/settings.json
 data/browser_profile/
 data/browser_diagnostics/
+data/models/
 backups/

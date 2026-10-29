@@ -1,12 +1,12 @@
 """Identidade visual centralizada do dashboard James IA."""
 
 COLORS = {
-    "bg": "#071521", "sidebar": "#081a28", "panel": "#102637",
-    "panel_alt": "#0C2232", "field": "#0a1e2d", "border": "#174156",
-    "border_soft": "#153344", "cyan": "#29C8E8", "cyan_dim": "#168eaa",
-    "blue": "#398dff", "green": "#2DD4A7", "purple": "#aa66ff",
-    "yellow": "#ffc54a", "text": "#EAF5FA", "muted": "#91AAB8",
-    "danger": "#ff657a",
+    "bg": "#020913", "sidebar": "#030d19", "panel": "#061522",
+    "panel_alt": "#081d2c", "field": "#04121e", "border": "#087a9d",
+    "border_soft": "#0a354b", "cyan": "#22d9ff", "cyan_dim": "#087f9f",
+    "blue": "#287dff", "green": "#20e7a7", "purple": "#9b63ff",
+    "yellow": "#ffb63d", "text": "#e7f9ff", "muted": "#7895a7",
+    "danger": "#ff5368", "grid": "#06263a", "white": "#f7fdff",
 }
 FONT = "Segoe UI"
 FONT_MONO = "Consolas"

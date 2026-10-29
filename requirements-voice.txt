@@ -1,0 +1,4 @@
+# Dependências opcionais do módulo de voz local no Windows.
+vosk>=0.3.45
+sounddevice>=0.4.6
+pyttsx3>=2.90
